@@ -1,6 +1,8 @@
+import os
 from fastapi import FastAPI
 from langchain_groq import ChatGroq
 import uvicorn
+from fastapi.middleware.cors import CORSMiddleware
 
 # 1. Initialize the app
 app = FastAPI()
