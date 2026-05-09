@@ -4,17 +4,23 @@ import uvicorn
 
 # 1. Initialize the app
 app = FastAPI()
+from fastapi.middleware.cors import CORSMiddleware
 
-# 2. Configure the AI (Using 8B model to avoid 'Rate Limit' errors)
-# PASTE YOUR REAL KEY INSIDE THE QUOTES
-import os
-
-# This now pulls the key from the server environment instead of the text
+# This allows your Streamlit frontend to talk to this backend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allows all headers
+)
+   # 2. Configure the AI
 llm = ChatGroq(
     temperature=0,
     model="llama-3.1-8b-instant",
-    api_key=os.getenv("GROQ_API_KEY") 
-)
+    api_key=os.getenv("GROQ_API_KEY")
+) 
+
 
 # 3. Heartbeat route (This is what the sidebar looks for)
 @app.get("/")
