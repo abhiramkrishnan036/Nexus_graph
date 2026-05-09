@@ -6,39 +6,39 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # 1. Initialize the app
 app = FastAPI()
-from fastapi.middleware.cors import CORSMiddleware
 
-# This allows your Streamlit frontend to talk to this backend
+# 2. Unlock CORS so Streamlit can talk to us
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods (GET, POST, etc.)
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
-   # 2. Configure the AI
+
+# 3. Configure the AI (Ensure your GROQ_API_KEY is in Render Environment Variables!)
 llm = ChatGroq(
     temperature=0,
     model="llama-3.1-8b-instant",
     api_key=os.getenv("GROQ_API_KEY")
-) 
+)
 
-
-# 3. Heartbeat route (This is what the sidebar looks for)
+# 4. Heartbeat route (This MUST work for the light to turn green)
 @app.get("/")
 def check_status():
     return {"status": "online"}
 
-# 4. Research route
+# 5. Research route
 @app.post("/ask")
 async def process_query(data: dict):
     user_text = data.get("text", "")
-    response = llm.invoke(user_text)
-    return {"answer": response.content}
+    try:
+        response = llm.invoke(user_text)
+        return {"answer": response.content}
+    except Exception as e:
+        return {"error": str(e)}
 
-# 5. Start command
 if __name__ == "__main__":
-    # Get the port from the environment, default to 8000
-    port = int(os.environ.get("PORT", 8000))
-    # host="0.0.0.0" allows external connections (needed for cloud)
+    # Render uses the PORT environment variable
+    port = int(os.environ.get("PORT", 10000))
     uvicorn.run(app, host="0.0.0.0", port=port)
