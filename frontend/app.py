@@ -23,15 +23,20 @@ st.markdown("""
     /* HIDE SECURITY RISKS BUT KEEP SIDEBAR TOGGLE */
     [data-testid="stAppDeployButton"], 
     [data-testid="stToolbar"], 
-    .st-emotion-cache-15zrgzn {
+    <style>
+    /* 1. HIDE GITHUB & DEPLOY BUTTONS (Right Side) */
+    .stAppDeployButton, [data-testid="stToolbar"] {
         display: none !important;
     }
 
-    /* HIDE FOOTER */
-    footer { visibility: hidden; }
+    /* 2. FORCE SIDEBAR TOGGLE TO BE VISIBLE (Left Side) */
+    [data-testid="collapsedControl"] {
+        display: block !important;
+        visibility: visible !important;
+    }
 
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono&display=swap');
-    
+    /* 3. HIDE FOOTER */
+    footer { visibility: hidden; }
     :root { 
         --primary: #7c4dff; 
         --secondary: #00ffd5; 
