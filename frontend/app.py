@@ -23,6 +23,20 @@ def get_base64_logo():
 
 st.markdown("""
     <style>
+            /* This hides the top header where the GitHub icon and menu live */
+header[data-testid="stHeader"] {
+    display: none !important;
+}
+
+/* This hides the "Made with Streamlit" footer */
+footer {
+    visibility: hidden;
+}
+
+/* This specifically targets the deploy button just in case */
+.stAppDeployButton {
+    display: none !important;
+}
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono&display=swap');
     
     :root { 
