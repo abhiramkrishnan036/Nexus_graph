@@ -1,10 +1,18 @@
 import streamlit as st
 import requests
-import time
-import PyPDF2 
-import base64
-from datetime import datetime
 
+# 1. This matches the name in your Streamlit Secrets box!
+BACKEND_URL = st.secrets.get("BACKEND_URL", "https://nexus-graph-59jz.onrender.com")
+
+# 2. Check the connection
+try:
+    response = requests.get(BACKEND_URL, timeout=5)
+    if response.status_code == 200:
+        system_status = "ONLINE"
+    else:
+        system_status = "OFFLINE"
+except:
+    system_status = "OFFLINE"
 # --- 1. CORE SYSTEM CONFIG ---
 st.set_page_config(page_title="NEXUS-GRAPH OS", page_icon="🧬", layout="wide")
 
@@ -81,7 +89,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # --- 3. CONNECTION SYNC ---
-BACKEND_URL = "http://127.0.0.1:8000"
+BACKEND_URL = "https://nexus-graph-59jz.onrender.com"
 is_alive = False
 try:
     if requests.get(BACKEND_URL, timeout=1).status_code == 200: is_alive = True
