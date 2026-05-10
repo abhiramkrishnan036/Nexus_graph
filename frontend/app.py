@@ -1,45 +1,35 @@
 from datetime import datetime
 import streamlit as st
 import requests
+import PyPDF2
+
+# --- 1. CORE SYSTEM CONFIG ---
+st.set_page_config(page_title="NEXUS-GRAPH OS", page_icon="🧬", layout="wide")
 
 # 1. This matches the name in your Streamlit Secrets box!
 BACKEND_URL = st.secrets.get("BACKEND_URL", "https://nexus-graph-59jz.onrender.com")
 
-# 2. Check the connection
+# 2. Check the connection (Heartbeat Logic)
+is_alive = False
 try:
-    response = requests.get(BACKEND_URL, timeout=5)
-    if response.status_code == 200:
-        system_status = "ONLINE"
-    else:
-        system_status = "OFFLINE"
+    if requests.get(BACKEND_URL, timeout=2).status_code == 200:
+        is_alive = True
 except:
-    system_status = "OFFLINE"
-# --- 1. CORE SYSTEM CONFIG ---
-st.set_page_config(page_title="NEXUS-GRAPH OS", page_icon="🧬", layout="wide")
+    is_alive = False
 
-# --- 2. HIGH-END VISUAL ENGINE (LOGO + ANIMATIONS + BG) ---
-def get_base64_logo():
-    # Placeholder for logo logic - using a stylized emoji-text logo for high-end look
-    return "🧬 NEXUS-GRAPH OS"
-
+# --- 2. HIGH-END VISUAL ENGINE (CSS SECURITY LOCK) ---
 st.markdown("""
     <style>
-   /* Remove the comma at the end of the third line */
-[data-testid="stAppDeployButton"], 
-[data-testid="stToolbar"], 
-.st-emotion-cache-15zrgzn {
-    display: none !important;
-}
+    /* HIDE SECURITY RISKS BUT KEEP SIDEBAR TOGGLE */
+    [data-testid="stAppDeployButton"], 
+    [data-testid="stToolbar"], 
+    .st-emotion-cache-15zrgzn {
+        display: none !important;
+    }
 
-/* This hides the "Made with Streamlit" footer */
-footer {
-    visibility: hidden;
-}
+    /* HIDE FOOTER */
+    footer { visibility: hidden; }
 
-/* This specifically targets the deploy button just in case */
-.stAppDeployButton {
-    display: none !important;
-}
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono&display=swap');
     
     :root { 
@@ -50,19 +40,11 @@ footer {
         --glow: rgba(0, 255, 213, 0.2);
     }
     
-    /* 1. ANIMATED NEURAL BACKGROUND */
     .stApp { 
         background: radial-gradient(circle at 50% 50%, #12141d 0%, #030406 100%);
         overflow: hidden;
     }
-    .stApp::before {
-        content: ""; position: absolute; width: 200%; height: 200%; top: -50%; left: -50%;
-        background-image: radial-gradient(circle, rgba(124, 77, 255, 0.05) 1px, transparent 1px);
-        background-size: 50px 50px; animation: rotateBG 100s linear infinite; z-index: -1;
-    }
-    @keyframes rotateBG { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-    /* 2. LOGO DESIGN */
     .logo-container {
         padding: 20px 0; text-align: center;
         filter: drop-shadow(0 0 10px var(--primary));
@@ -70,7 +52,6 @@ footer {
     }
     @keyframes pulse { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; } }
 
-    /* 3. NEON SHINE TITLE */
     .hero-title { 
         background: linear-gradient(90deg, #fff, var(--primary), var(--secondary), #fff);
         background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -78,7 +59,6 @@ footer {
     }
     @keyframes shine { to { background-position: 200% center; } }
 
-    /* 4. QUANTUM POPUP CARDS (GLASSMORPHISM) */
     .dossier-card { 
         background: var(--glass); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; 
         padding: 25px; margin-bottom: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
@@ -89,28 +69,13 @@ footer {
         100% { opacity: 1; transform: scale(1) translateY(0); }
     }
 
-    /* 5. CHATBOT ENHANCEMENTS */
     .stChatMessage { 
         background: rgba(124, 77, 255, 0.05) !important; 
         border: 1px solid rgba(124, 77, 255, 0.1) !important;
         border-radius: 15px !important; margin-bottom: 12px !important;
-        transition: all 0.3s ease;
     }
-    .stChatMessage:hover { border-color: var(--secondary) !important; box-shadow: 0 0 15px var(--glow); }
-
-    /* 6. CUSTOM SCROLLBAR */
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
     </style>
-    """, unsafe_allow_html=True)
-
-# --- 3. CONNECTION SYNC ---
-BACKEND_URL = "https://nexus-graph-59jz.onrender.com"
-is_alive = False
-try:
-    if requests.get(BACKEND_URL, timeout=1).status_code == 200: is_alive = True
-except: is_alive = False
+""", unsafe_allow_html=True)
 
 # --- 4. SIDEBAR (LOGO + STATUS) ---
 with st.sidebar:
@@ -125,7 +90,6 @@ with st.sidebar:
 
 # --- 5. FUNCTIONAL MODULES ---
 
-# MODULE: DISCOVER (Research Engine)
 if menu == "✧ DISCOVER":
     st.markdown('<h1 class="hero-title">Research Engine</h1>', unsafe_allow_html=True)
     q = st.text_input("QUERY", placeholder="Ask the knowledge network...", label_visibility="collapsed")
@@ -137,11 +101,8 @@ if menu == "✧ DISCOVER":
                     st.markdown(f'<div class="dossier-card"><b>📌 SYNTHESIZED DOSSIER:</b><br><br>{res}</div>', unsafe_allow_html=True)
                 except: st.error("Sync Lost.")
 
-# MODULE: RESEARCH ASSISTANT (Split View: Ingestion + Chat)
 elif menu == "💬 RESEARCH_ASSISTANT":
     st.markdown('<h1 class="hero-title">Research Assistant</h1>', unsafe_allow_html=True)
-    
-    # High-End Split View
     col_left, col_right = st.columns([1, 1.2], gap="large")
     
     with col_left:
@@ -157,11 +118,9 @@ elif menu == "💬 RESEARCH_ASSISTANT":
 
     with col_right:
         st.markdown("### 💬 Quantum Chat")
-        # Chat box with fixed height and glass styling
         chat_box = st.container(height=500, border=True)
-        
         if "messages" not in st.session_state:
-            st.session_state.messages = [{"role": "assistant", "content": "Hey Abhi! Everything is updated. I'm ready to analyze your files or answer research questions."}]
+            st.session_state.messages = [{"role": "assistant", "content": f"Hey {st.secrets.get('USER_NAME', 'Abhi')}! Everything is updated. I'm ready to analyze your files."}]
 
         with chat_box:
             for m in st.session_state.messages:
@@ -178,7 +137,6 @@ elif menu == "💬 RESEARCH_ASSISTANT":
                         st.session_state.messages.append({"role": "assistant", "content": res})
                     except: st.error("Backend link failed.")
 
-# MODULE: ANALYTICS
 elif menu == "📊 ANALYTICS":
     st.markdown('<h1 class="hero-title">Graph Vitals</h1>', unsafe_allow_html=True)
     st.markdown("""
