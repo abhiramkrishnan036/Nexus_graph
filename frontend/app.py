@@ -24,8 +24,10 @@ def get_base64_logo():
 
 st.markdown("""
     <style>
-            /* This hides the top header where the GitHub icon and menu live */
-header[data-testid="stHeader"] {
+   /* Remove the comma at the end of the third line */
+[data-testid="stAppDeployButton"], 
+[data-testid="stToolbar"], 
+.st-emotion-cache-15zrgzn {
     display: none !important;
 }
 
